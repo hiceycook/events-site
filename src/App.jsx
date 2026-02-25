@@ -7,24 +7,24 @@ import { useState, useMemo, useEffect, useRef } from "react";
 // Prototype "now" — LA stop is live today
 const NOW = new Date("2026-02-25T14:00:00");
 
-// AG1-inspired theme tokens
+// Dark theme tokens
 const T = {
-  bg: "#ffffff",
-  bgAlt: "#f7f7f5",
+  bg: "#161616",
+  bgAlt: "#1f1f1f",
   bgDark: "#0c3d3d",
   accent: "#46de46",
   accentDark: "#2fb82f",
-  text: "#1a1a1a",
-  textSecondary: "#555555",
-  textMuted: "#999999",
-  border: "#e5e5e3",
-  borderLight: "#f0f0ee",
-  cardShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-  cardShadowHover: "0 4px 12px rgba(0,0,0,0.08)",
-  navBg: "#ffffff",
+  text: "#f0f0f0",
+  textSecondary: "#888888",
+  textMuted: "#555555",
+  border: "#2a2a2a",
+  borderLight: "#222222",
+  cardShadow: "0 1px 0 rgba(255,255,255,0.04)",
+  cardShadowHover: "0 4px 20px rgba(0,0,0,0.5)",
+  navBg: "#0a0a0a",
   heroBg: "#0c3d3d",
   heroText: "#ffffff",
-  adminBg: "#f7f7f5",
+  adminBg: "#0f0f0f",
 };
 
 const CATEGORIES = [
@@ -34,9 +34,9 @@ const CATEGORIES = [
     emoji: "🚌",
     color: "#0c3d3d",
     gradient: "linear-gradient(135deg,#0c3d3d 0%,#1a5c4a 100%)",
-    badgeBg: "rgba(12,61,61,.08)",
-    badgeText: "#0c3d3d",
-    badgeBorder: "rgba(12,61,61,.2)",
+    badgeBg: "rgba(12,61,61,.35)",
+    badgeText: "#5acdca",
+    badgeBorder: "rgba(12,61,61,.5)",
   },
   {
     id: "pop-up",
@@ -44,9 +44,9 @@ const CATEGORIES = [
     emoji: "🛍️",
     color: "#7c3aed",
     gradient: "linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%)",
-    badgeBg: "rgba(124,58,237,.08)",
-    badgeText: "#7c3aed",
-    badgeBorder: "rgba(124,58,237,.2)",
+    badgeBg: "rgba(124,58,237,.25)",
+    badgeText: "#a78bfa",
+    badgeBorder: "rgba(124,58,237,.4)",
   },
   {
     id: "launch",
@@ -54,9 +54,9 @@ const CATEGORIES = [
     emoji: "🚀",
     color: "#2563eb",
     gradient: "linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%)",
-    badgeBg: "rgba(37,99,235,.08)",
-    badgeText: "#2563eb",
-    badgeBorder: "rgba(37,99,235,.2)",
+    badgeBg: "rgba(37,99,235,.25)",
+    badgeText: "#60a5fa",
+    badgeBorder: "rgba(37,99,235,.4)",
   },
   {
     id: "workshop",
@@ -64,9 +64,9 @@ const CATEGORIES = [
     emoji: "✂️",
     color: "#059669",
     gradient: "linear-gradient(135deg,#059669 0%,#047857 100%)",
-    badgeBg: "rgba(5,150,105,.08)",
-    badgeText: "#059669",
-    badgeBorder: "rgba(5,150,105,.2)",
+    badgeBg: "rgba(5,150,105,.25)",
+    badgeText: "#34d399",
+    badgeBorder: "rgba(5,150,105,.4)",
   },
 ];
 
@@ -286,6 +286,22 @@ function formatDatetimeLocal(iso) {
   if (!iso) return "";
   return iso.slice(0, 16);
 }
+function formatDateDisplay(start, end) {
+  const s = new Date(start), e = new Date(end);
+  const mo = (d) => d.toLocaleDateString("en-US", { month: "short" });
+  const dy = (d) => d.getDate();
+  if (s.toDateString() === e.toDateString()) return `${mo(s)} ${dy(s)}`;
+  if (s.getMonth() === e.getMonth()) return `${mo(s)} ${dy(s)}–${dy(e)}`;
+  return `${mo(s)} ${dy(s)} – ${mo(e)} ${dy(e)}`;
+}
+function formatShortDateBadge(start, end) {
+  const s = new Date(start), e = new Date(end);
+  const mo = (d) => d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+  const dy = (d) => d.getDate();
+  if (s.toDateString() === e.toDateString()) return `${mo(s)} ${dy(s)}`;
+  if (s.getMonth() === e.getMonth()) return `${mo(s)} ${dy(s)}–${dy(e)}`;
+  return `${mo(s)} ${dy(s)} – ${mo(e)} ${dy(e)}`;
+}
 
 /* ═══════════════════════════════════════════════════════════
    SHARED TINY COMPONENTS
@@ -302,14 +318,16 @@ const STATUS_CONFIG = {
   },
   past: {
     label: "PAST",
-    bg: "#e5e5e3",
-    text: "#999999",
+    bg: "#2a2a2a",
+    text: "#666666",
     pulse: false,
   },
 };
 
-function StatusBadge({ status, large }) {
+function StatusBadge({ status, startDate, endDate, large }) {
   const cfg = STATUS_CONFIG[status];
+  const showDate = (status === "upcoming" || status === "past") && startDate;
+  const label = showDate ? formatShortDateBadge(startDate, endDate || startDate) : cfg.label;
   return (
     <span
       style={{
@@ -339,7 +357,7 @@ function StatusBadge({ status, large }) {
           }}
         />
       )}
-      {cfg.pulse ? "LIVE NOW" : cfg.label}
+      {cfg.pulse ? "LIVE NOW" : label}
     </span>
   );
 }
@@ -414,7 +432,7 @@ function EventCard({ event, series }) {
           background: event.imageUrl
             ? `url(${event.imageUrl}) center/cover no-repeat`
             : isPast
-            ? "linear-gradient(135deg,#d4d4d4 0%,#bbb 100%)"
+            ? "linear-gradient(135deg,#2a2a2a 0%,#222 100%)"
             : cat.gradient,
           position: "relative",
           display: "flex",
@@ -443,7 +461,7 @@ function EventCard({ event, series }) {
           </div>
         )}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", position: "relative", zIndex: 1 }}>
-          <StatusBadge status={status} />
+          <StatusBadge status={status} startDate={event.startDate} endDate={event.endDate} />
           {event.seriesId && <SeriesTag seriesId={event.seriesId} series={series} light />}
         </div>
       </div>
@@ -480,12 +498,19 @@ function EventCard({ event, series }) {
           </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <div style={{ color: T.textSecondary, fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
-            <span>🗓</span>
-            <span>{formatDateRange(event.startDate, event.endDate)}</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div
+            style={{
+              color: isPast ? T.textSecondary : T.text,
+              fontSize: 20,
+              fontWeight: 800,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+            }}
+          >
+            {formatDateDisplay(event.startDate, event.endDate)}
           </div>
-          <div style={{ color: T.textSecondary, fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ color: T.textMuted, fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
             <span>📍</span>
             <span>
               {event.venue} · {event.city}, {event.state}
@@ -518,7 +543,7 @@ function EventCard({ event, series }) {
             href={event.rsvpUrl}
             style={{
               display: "inline-block",
-              background: isPast ? T.border : T.bgDark,
+              background: isPast ? T.bgAlt : T.bgDark,
               color: isPast ? T.textMuted : "#fff",
               padding: "8px 16px",
               borderRadius: 8,
@@ -694,7 +719,7 @@ function HeroCarousel({ events, series }) {
 
             <div style={{ position: "relative", zIndex: 1, maxWidth: 640 }}>
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 18, flexWrap: "wrap" }}>
-                <StatusBadge status={eStatus} large />
+                <StatusBadge status={eStatus} startDate={evt.startDate} endDate={evt.endDate} large />
                 {eSer && (
                   <span
                     style={{
@@ -1855,7 +1880,7 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
                         {evt.city}, {evt.state} · {formatDateRange(evt.startDate, evt.endDate)}
                       </div>
                     </div>
-                    <StatusBadge status={status} />
+                    <StatusBadge status={status} startDate={evt.startDate} endDate={evt.endDate} />
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                       <button onClick={() => { setEditingEvent(evt); setShowEventForm(true); }} style={{ background: T.bgAlt, border: `1px solid ${T.border}`, color: T.textSecondary, padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit</button>
                       <button onClick={() => setDeleteConfirm({ type: "event", id: evt.id, name: evt.title })} style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", color: "#dc2626", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Delete</button>
