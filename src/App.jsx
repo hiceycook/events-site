@@ -7,46 +7,66 @@ import { useState, useMemo, useEffect, useRef } from "react";
 // Prototype "now" — LA stop is live today
 const NOW = new Date("2026-02-25T14:00:00");
 
+// AG1-inspired theme tokens
+const T = {
+  bg: "#ffffff",
+  bgAlt: "#f7f7f5",
+  bgDark: "#0c3d3d",
+  accent: "#46de46",
+  accentDark: "#2fb82f",
+  text: "#1a1a1a",
+  textSecondary: "#555555",
+  textMuted: "#999999",
+  border: "#e5e5e3",
+  borderLight: "#f0f0ee",
+  cardShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+  cardShadowHover: "0 4px 12px rgba(0,0,0,0.08)",
+  navBg: "#ffffff",
+  heroBg: "#0c3d3d",
+  heroText: "#ffffff",
+  adminBg: "#f7f7f5",
+};
+
 const CATEGORIES = [
   {
     id: "bus-tour",
     name: "Bus Tour Stop",
     emoji: "🚌",
-    color: "#f97316",
-    gradient: "linear-gradient(135deg,#f97316 0%,#c2410c 100%)",
-    badgeBg: "rgba(249,115,22,.15)",
-    badgeText: "#fb923c",
-    badgeBorder: "rgba(249,115,22,.35)",
+    color: "#0c3d3d",
+    gradient: "linear-gradient(135deg,#0c3d3d 0%,#1a5c4a 100%)",
+    badgeBg: "rgba(12,61,61,.08)",
+    badgeText: "#0c3d3d",
+    badgeBorder: "rgba(12,61,61,.2)",
   },
   {
     id: "pop-up",
     name: "Pop-Up Shop",
     emoji: "🛍️",
-    color: "#ec4899",
-    gradient: "linear-gradient(135deg,#ec4899 0%,#be185d 100%)",
-    badgeBg: "rgba(236,72,153,.15)",
-    badgeText: "#f472b6",
-    badgeBorder: "rgba(236,72,153,.35)",
+    color: "#7c3aed",
+    gradient: "linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%)",
+    badgeBg: "rgba(124,58,237,.08)",
+    badgeText: "#7c3aed",
+    badgeBorder: "rgba(124,58,237,.2)",
   },
   {
     id: "launch",
     name: "Launch Event",
     emoji: "🚀",
-    color: "#3b82f6",
-    gradient: "linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%)",
-    badgeBg: "rgba(59,130,246,.15)",
-    badgeText: "#60a5fa",
-    badgeBorder: "rgba(59,130,246,.35)",
+    color: "#2563eb",
+    gradient: "linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%)",
+    badgeBg: "rgba(37,99,235,.08)",
+    badgeText: "#2563eb",
+    badgeBorder: "rgba(37,99,235,.2)",
   },
   {
     id: "workshop",
     name: "Workshop",
     emoji: "✂️",
-    color: "#10b981",
-    gradient: "linear-gradient(135deg,#10b981 0%,#047857 100%)",
-    badgeBg: "rgba(16,185,129,.15)",
-    badgeText: "#34d399",
-    badgeBorder: "rgba(16,185,129,.35)",
+    color: "#059669",
+    gradient: "linear-gradient(135deg,#059669 0%,#047857 100%)",
+    badgeBg: "rgba(5,150,105,.08)",
+    badgeText: "#059669",
+    badgeBorder: "rgba(5,150,105,.2)",
   },
 ];
 
@@ -62,8 +82,8 @@ const INITIAL_SERIES = [
       "10 cities. 1 mission. The biggest IRL brand tour we've ever done — coast to coast, every major market.",
     startDate: "2026-02-10",
     endDate: "2026-08-22",
-    color: "#f97316",
-    gradient: "linear-gradient(135deg,#f97316 0%,#dc2626 100%)",
+    color: "#0c3d3d",
+    gradient: "linear-gradient(135deg,#0c3d3d 0%,#1a5c4a 100%)",
   },
   {
     id: "summer-drops",
@@ -73,8 +93,8 @@ const INITIAL_SERIES = [
       "Every major product drop this summer comes with a pop-up. Stay locked in.",
     startDate: "2026-06-01",
     endDate: "2026-09-01",
-    color: "#8b5cf6",
-    gradient: "linear-gradient(135deg,#8b5cf6 0%,#2563eb 100%)",
+    color: "#7c3aed",
+    gradient: "linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%)",
   },
 ];
 
@@ -276,14 +296,14 @@ const STATUS_CONFIG = {
   today: { label: "TODAY", bg: "#d97706", text: "#fff", pulse: false },
   upcoming: {
     label: "UPCOMING",
-    bg: "rgba(255,255,255,0.1)",
-    text: "rgba(255,255,255,0.75)",
+    bg: T.bgDark,
+    text: "#ffffff",
     pulse: false,
   },
   past: {
     label: "PAST",
-    bg: "rgba(255,255,255,0.05)",
-    text: "rgba(255,255,255,0.35)",
+    bg: "#e5e5e3",
+    text: "#999999",
     pulse: false,
   },
 };
@@ -345,13 +365,13 @@ function CategoryChip({ categoryId }) {
   );
 }
 
-function SeriesTag({ seriesId, series }) {
+function SeriesTag({ seriesId, series, light }) {
   const s = series.find((x) => x.id === seriesId);
   if (!s) return null;
   return (
     <span
       style={{
-        color: s.color,
+        color: light ? "rgba(255,255,255,0.85)" : s.color,
         fontSize: 10,
         fontWeight: 700,
         letterSpacing: "0.1em",
@@ -376,14 +396,15 @@ function EventCard({ event, series }) {
   return (
     <div
       style={{
-        background: isPast ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.06)",
-        border: `1px solid ${isPast ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.1)"}`,
+        background: T.bg,
+        border: `1px solid ${T.border}`,
         borderRadius: 16,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        opacity: isPast ? 0.65 : 1,
+        opacity: isPast ? 0.7 : 1,
         height: "100%",
+        boxShadow: T.cardShadow,
       }}
     >
       {/* Image / gradient area */}
@@ -393,7 +414,7 @@ function EventCard({ event, series }) {
           background: event.imageUrl
             ? `url(${event.imageUrl}) center/cover no-repeat`
             : isPast
-            ? "linear-gradient(135deg,#1f1f1f 0%,#111 100%)"
+            ? "linear-gradient(135deg,#d4d4d4 0%,#bbb 100%)"
             : cat.gradient,
           position: "relative",
           display: "flex",
@@ -402,7 +423,6 @@ function EventCard({ event, series }) {
           flexShrink: 0,
         }}
       >
-        {/* Subtle dark scrim over photos so badges stay readable */}
         {event.imageUrl && (
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%)" }} />
         )}
@@ -414,7 +434,7 @@ function EventCard({ event, series }) {
               left: "50%",
               transform: "translate(-50%,-60%)",
               fontSize: 48,
-              opacity: 0.25,
+              opacity: 0.2,
               userSelect: "none",
               pointerEvents: "none",
             }}
@@ -424,7 +444,7 @@ function EventCard({ event, series }) {
         )}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", position: "relative", zIndex: 1 }}>
           <StatusBadge status={status} />
-          {event.seriesId && <SeriesTag seriesId={event.seriesId} series={series} />}
+          {event.seriesId && <SeriesTag seriesId={event.seriesId} series={series} light />}
         </div>
       </div>
 
@@ -435,7 +455,7 @@ function EventCard({ event, series }) {
         <div>
           <h3
             style={{
-              color: isPast ? "rgba(255,255,255,0.55)" : "#fff",
+              color: isPast ? T.textMuted : T.text,
               fontSize: 16,
               fontWeight: 700,
               lineHeight: 1.25,
@@ -446,7 +466,7 @@ function EventCard({ event, series }) {
           </h3>
           <p
             style={{
-              color: "rgba(255,255,255,0.4)",
+              color: T.textMuted,
               fontSize: 11,
               lineHeight: 1.5,
               margin: "5px 0 0",
@@ -461,11 +481,11 @@ function EventCard({ event, series }) {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ color: T.textSecondary, fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
             <span>🗓</span>
             <span>{formatDateRange(event.startDate, event.endDate)}</span>
           </div>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ color: T.textSecondary, fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
             <span>📍</span>
             <span>
               {event.venue} · {event.city}, {event.state}
@@ -479,8 +499,8 @@ function EventCard({ event, series }) {
               <span
                 key={p}
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  color: "rgba(255,255,255,0.45)",
+                  background: T.bgAlt,
+                  color: T.textSecondary,
                   padding: "2px 7px",
                   borderRadius: 5,
                   fontSize: 10,
@@ -498,8 +518,8 @@ function EventCard({ event, series }) {
             href={event.rsvpUrl}
             style={{
               display: "inline-block",
-              background: isPast ? "rgba(255,255,255,0.07)" : cat.color,
-              color: "#fff",
+              background: isPast ? T.border : T.bgDark,
+              color: isPast ? T.textMuted : "#fff",
               padding: "8px 16px",
               borderRadius: 8,
               fontSize: 11,
@@ -532,8 +552,8 @@ function SeriesBanner({ ser, eventCount }) {
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: `1px solid rgba(255,255,255,0.08)`,
+        background: T.bg,
+        border: `1px solid ${T.border}`,
         borderLeft: `3px solid ${ser.color}`,
         borderRadius: 12,
         padding: "16px 20px",
@@ -541,6 +561,7 @@ function SeriesBanner({ ser, eventCount }) {
         alignItems: "center",
         justifyContent: "space-between",
         gap: 16,
+        boxShadow: T.cardShadow,
       }}
     >
       <div>
@@ -563,8 +584,8 @@ function SeriesBanner({ ser, eventCount }) {
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: statusNow === "active" ? "#22c55e" : statusNow === "upcoming" ? "#60a5fa" : "rgba(255,255,255,0.3)",
-              background: statusNow === "active" ? "rgba(34,197,94,0.12)" : statusNow === "upcoming" ? "rgba(96,165,250,0.12)" : "rgba(255,255,255,0.05)",
+              color: statusNow === "active" ? "#059669" : statusNow === "upcoming" ? "#2563eb" : T.textMuted,
+              background: statusNow === "active" ? "rgba(5,150,105,0.08)" : statusNow === "upcoming" ? "rgba(37,99,235,0.08)" : T.bgAlt,
               padding: "2px 8px",
               borderRadius: 99,
               fontFamily: "monospace",
@@ -573,11 +594,11 @@ function SeriesBanner({ ser, eventCount }) {
             {statusNow === "active" ? "● ACTIVE" : statusNow === "upcoming" ? "UPCOMING" : "ENDED"}
           </span>
         </div>
-        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, margin: "3px 0 0" }}>
+        <p style={{ color: T.textMuted, fontSize: 12, margin: "3px 0 0" }}>
           {ser.subtitle} · {formatDate(ser.startDate)} – {formatDate(ser.endDate)}
         </p>
       </div>
-      <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, whiteSpace: "nowrap" }}>
+      <span style={{ color: T.textMuted, fontSize: 12, whiteSpace: "nowrap" }}>
         {eventCount} event{eventCount !== 1 ? "s" : ""}
       </span>
     </div>
@@ -604,8 +625,8 @@ function HeroCarousel({ events, series }) {
     return (
       <div
         style={{
-          background: "rgba(255,255,255,0.03)",
-          border: "1px dashed rgba(255,255,255,0.1)",
+          background: T.bgAlt,
+          border: `1px dashed ${T.border}`,
           borderRadius: 20,
           height: 220,
           display: "flex",
@@ -617,7 +638,7 @@ function HeroCarousel({ events, series }) {
         }}
       >
         <div style={{ fontSize: 36 }}>🎯</div>
-        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, fontWeight: 600 }}>
+        <div style={{ color: T.textMuted, fontSize: 13, fontWeight: 600 }}>
           No featured events — mark events as "Show in hero carousel" in the CMS
         </div>
       </div>
@@ -642,7 +663,7 @@ function HeroCarousel({ events, series }) {
               inset: 0,
               background: evt.imageUrl
                 ? `url(${evt.imageUrl}) center/cover no-repeat`
-                : eCat.gradient,
+                : T.heroBg,
               opacity: i === safeIdx ? 1 : 0,
               transition: "opacity 0.8s ease",
               display: "flex",
@@ -651,11 +672,9 @@ function HeroCarousel({ events, series }) {
               padding: "48px 56px",
             }}
           >
-            {/* Dark gradient scrim over photos */}
             {evt.imageUrl && (
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.1) 100%)" }} />
             )}
-            {/* Large emoji watermark (only when no image) */}
             {!evt.imageUrl && (
               <div
                 style={{
@@ -664,7 +683,7 @@ function HeroCarousel({ events, series }) {
                   top: "50%",
                   transform: "translateY(-60%)",
                   fontSize: 220,
-                  opacity: 0.1,
+                  opacity: 0.07,
                   userSelect: "none",
                   pointerEvents: "none",
                 }}
@@ -679,7 +698,7 @@ function HeroCarousel({ events, series }) {
                 {eSer && (
                   <span
                     style={{
-                      background: "rgba(0,0,0,0.25)",
+                      background: "rgba(255,255,255,0.15)",
                       color: "#fff",
                       padding: "4px 12px",
                       borderRadius: 99,
@@ -731,8 +750,8 @@ function HeroCarousel({ events, series }) {
                   href={evt.rsvpUrl}
                   style={{
                     display: "inline-block",
-                    background: "#fff",
-                    color: eCat.color,
+                    background: T.accent,
+                    color: T.bgDark,
                     padding: "13px 30px",
                     borderRadius: 10,
                     fontSize: 13,
@@ -745,7 +764,6 @@ function HeroCarousel({ events, series }) {
                   {evt.rsvpLabel || "Learn More"}
                 </a>
 
-                {/* Dot indicators */}
                 {featured.length > 1 && (
                   <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                     {featured.map((_, di) => (
@@ -756,7 +774,7 @@ function HeroCarousel({ events, series }) {
                           width: di === safeIdx ? 24 : 8,
                           height: 8,
                           borderRadius: 4,
-                          background: di === safeIdx ? "#fff" : "rgba(255,255,255,0.35)",
+                          background: di === safeIdx ? T.accent : "rgba(255,255,255,0.35)",
                           border: "none",
                           cursor: "pointer",
                           padding: 0,
@@ -782,8 +800,8 @@ function HeroCarousel({ events, series }) {
               left: 16,
               top: "50%",
               transform: "translateY(-50%)",
-              background: "rgba(0,0,0,0.35)",
-              border: "1px solid rgba(255,255,255,0.2)",
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.25)",
               color: "#fff",
               width: 44,
               height: 44,
@@ -806,8 +824,8 @@ function HeroCarousel({ events, series }) {
               right: 16,
               top: "50%",
               transform: "translateY(-50%)",
-              background: "rgba(0,0,0,0.35)",
-              border: "1px solid rgba(255,255,255,0.2)",
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.25)",
               color: "#fff",
               width: 44,
               height: 44,
@@ -830,8 +848,8 @@ function HeroCarousel({ events, series }) {
               position: "absolute",
               top: 18,
               right: 18,
-              background: "rgba(0,0,0,0.35)",
-              color: "rgba(255,255,255,0.75)",
+              background: "rgba(255,255,255,0.15)",
+              color: "rgba(255,255,255,0.85)",
               padding: "4px 10px",
               borderRadius: 99,
               fontSize: 11,
@@ -881,9 +899,9 @@ function EventCarouselRow({ events, series, title, onViewAll, totalCount }) {
   };
 
   const arrowBtn = (disabled) => ({
-    background: disabled ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.09)",
-    border: `1px solid ${disabled ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.14)"}`,
-    color: disabled ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.85)",
+    background: disabled ? T.bgAlt : T.bg,
+    border: `1px solid ${disabled ? T.borderLight : T.border}`,
+    color: disabled ? T.textMuted : T.text,
     width: 34,
     height: 34,
     borderRadius: "50%",
@@ -901,8 +919,8 @@ function EventCarouselRow({ events, series, title, onViewAll, totalCount }) {
   const SectionHeader = () => (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, letterSpacing: "-0.01em" }}>{title}</h2>
-        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, fontFamily: "monospace" }}>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, letterSpacing: "-0.01em", color: T.text }}>{title}</h2>
+        <span style={{ color: T.textMuted, fontSize: 12, fontFamily: "monospace" }}>
           {totalCount} event{totalCount !== 1 ? "s" : ""}
         </span>
       </div>
@@ -912,9 +930,9 @@ function EventCarouselRow({ events, series, title, onViewAll, totalCount }) {
         <button
           onClick={onViewAll}
           style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: "rgba(255,255,255,0.8)",
+            background: T.bgDark,
+            border: "none",
+            color: "#fff",
             padding: "7px 16px",
             borderRadius: 8,
             fontSize: 12,
@@ -936,11 +954,11 @@ function EventCarouselRow({ events, series, title, onViewAll, totalCount }) {
         <SectionHeader />
         <div
           style={{
-            background: "rgba(255,255,255,0.02)",
-            border: "1px dashed rgba(255,255,255,0.07)",
+            background: T.bgAlt,
+            border: `1px dashed ${T.border}`,
             borderRadius: 12,
             padding: "32px 24px",
-            color: "rgba(255,255,255,0.22)",
+            color: T.textMuted,
             fontSize: 13,
             textAlign: "center",
           }}
@@ -1003,9 +1021,9 @@ function ViewAllModal({ events, series, title, onClose }) {
     <button
       onClick={onClick}
       style={{
-        background: active ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
-        border: `1px solid ${active ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.08)"}`,
-        color: active ? "#fff" : "rgba(255,255,255,0.5)",
+        background: active ? T.bgDark : T.bg,
+        border: `1px solid ${active ? T.bgDark : T.border}`,
+        color: active ? "#fff" : T.textSecondary,
         padding: "6px 14px",
         borderRadius: 99,
         fontSize: 12,
@@ -1024,7 +1042,7 @@ function ViewAllModal({ events, series, title, onClose }) {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.92)",
+        background: "rgba(255,255,255,0.97)",
         backdropFilter: "blur(10px)",
         zIndex: 200,
         overflowY: "auto",
@@ -1036,29 +1054,29 @@ function ViewAllModal({ events, series, title, onClose }) {
           style={{
             position: "sticky",
             top: 0,
-            background: "rgba(8,8,8,0.96)",
+            background: "rgba(255,255,255,0.97)",
             backdropFilter: "blur(14px)",
             padding: "24px 0 18px",
             zIndex: 10,
-            borderBottom: "1px solid rgba(255,255,255,0.07)",
+            borderBottom: `1px solid ${T.border}`,
             marginBottom: 32,
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
             <div>
-              <h2 style={{ color: "#fff", margin: 0, fontSize: 30, fontWeight: 900, letterSpacing: "-0.02em" }}>
+              <h2 style={{ color: T.text, margin: 0, fontSize: 30, fontWeight: 900, letterSpacing: "-0.02em" }}>
                 {title}
               </h2>
-              <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginTop: 4, fontFamily: "monospace" }}>
+              <div style={{ color: T.textMuted, fontSize: 12, marginTop: 4, fontFamily: "monospace" }}>
                 {filtered.length} of {events.length} event{events.length !== 1 ? "s" : ""}
               </div>
             </div>
             <button
               onClick={onClose}
               style={{
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "rgba(255,255,255,0.8)",
+                background: T.bgAlt,
+                border: `1px solid ${T.border}`,
+                color: T.textSecondary,
                 padding: "9px 18px",
                 borderRadius: 8,
                 cursor: "pointer",
@@ -1075,7 +1093,7 @@ function ViewAllModal({ events, series, title, onClose }) {
           {/* Filters */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
             {pill(filterCategory === "all" && filterSeries === "all", "All", () => { setFilterCategory("all"); setFilterSeries("all"); })}
-            <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px", alignSelf: "center" }} />
+            <div style={{ width: 1, height: 20, background: T.border, margin: "0 4px", alignSelf: "center" }} />
             {CATEGORIES.map((c) =>
               pill(filterCategory === c.id, `${c.emoji} ${c.name}`, () =>
                 setFilterCategory(filterCategory === c.id ? "all" : c.id)
@@ -1083,7 +1101,7 @@ function ViewAllModal({ events, series, title, onClose }) {
             )}
             {series.length > 0 && (
               <>
-                <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px", alignSelf: "center" }} />
+                <div style={{ width: 1, height: 20, background: T.border, margin: "0 4px", alignSelf: "center" }} />
                 {series.map((s) =>
                   pill(filterSeries === s.id, s.name, () =>
                     setFilterSeries(filterSeries === s.id ? "all" : s.id)
@@ -1096,7 +1114,7 @@ function ViewAllModal({ events, series, title, onClose }) {
 
         {/* Grid */}
         {filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "rgba(255,255,255,0.25)" }}>
+          <div style={{ textAlign: "center", padding: "80px 0", color: T.textMuted }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
             <div style={{ fontSize: 14 }}>No events match these filters</div>
           </div>
@@ -1165,9 +1183,9 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
     <button
       onClick={onClick}
       style={{
-        background: active ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
-        border: `1px solid ${active ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.08)"}`,
-        color: active ? "#fff" : "rgba(255,255,255,0.5)",
+        background: active ? T.bgDark : T.bg,
+        border: `1px solid ${active ? T.bgDark : T.border}`,
+        color: active ? "#fff" : T.textSecondary,
         padding: "6px 14px",
         borderRadius: 99,
         fontSize: 12,
@@ -1182,13 +1200,13 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: "'Inter', system-ui, sans-serif" }}>
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: ${T.bg}; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
@@ -1196,22 +1214,22 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
       {/* Nav */}
       <nav
         style={{
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          borderBottom: `1px solid ${T.border}`,
           padding: "0 32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          height: 60,
+          height: 64,
           position: "sticky",
           top: 0,
-          background: "rgba(10,10,10,0.95)",
+          background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(12px)",
           zIndex: 100,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em" }}>
-            BRAND<span style={{ color: "#f97316" }}>•</span>CO
+          <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em", color: T.text }}>
+            BRAND<span style={{ color: T.bgDark }}>•</span>CO
           </span>
           <div style={{ display: "flex", gap: 20 }}>
             {["Products", "Collections", "Events", "About"].map((item) => (
@@ -1219,11 +1237,11 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
                 key={item}
                 href="#"
                 style={{
-                  color: item === "Events" ? "#fff" : "rgba(255,255,255,0.45)",
+                  color: item === "Events" ? T.text : T.textMuted,
                   textDecoration: "none",
                   fontSize: 13,
                   fontWeight: item === "Events" ? 600 : 400,
-                  borderBottom: item === "Events" ? "2px solid #f97316" : "2px solid transparent",
+                  borderBottom: item === "Events" ? `2px solid ${T.bgDark}` : "2px solid transparent",
                   paddingBottom: 2,
                 }}
               >
@@ -1235,9 +1253,9 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
         <button
           onClick={onSwitchToAdmin}
           style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: "rgba(255,255,255,0.7)",
+            background: T.bgAlt,
+            border: `1px solid ${T.border}`,
+            color: T.textSecondary,
             padding: "7px 16px",
             borderRadius: 8,
             fontSize: 12,
@@ -1253,13 +1271,13 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 24px" }}>
         {/* Page title */}
         <div style={{ marginBottom: 40 }}>
-          <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "monospace", marginBottom: 8 }}>
+          <div style={{ color: T.textMuted, fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "monospace", marginBottom: 8 }}>
             IRL Activations
           </div>
-          <h1 style={{ fontSize: 48, fontWeight: 900, margin: 0, letterSpacing: "-0.03em", lineHeight: 1 }}>
+          <h1 style={{ fontSize: 48, fontWeight: 900, margin: 0, letterSpacing: "-0.03em", lineHeight: 1, color: T.text }}>
             Events
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 15, marginTop: 10, lineHeight: 1.5 }}>
+          <p style={{ color: T.textSecondary, fontSize: 15, marginTop: 10, lineHeight: 1.5 }}>
             Bus tours, pop-ups, workshops, and drops — happening near you.
           </p>
         </div>
@@ -1269,7 +1287,7 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
 
         {/* Series overview */}
         <div style={{ marginBottom: 40 }}>
-          <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "monospace", marginBottom: 12 }}>
+          <div style={{ color: T.textMuted, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "monospace", marginBottom: 12 }}>
             Active Series
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1285,11 +1303,11 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
 
         {/* Filters */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 40, alignItems: "center" }}>
-          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace", marginRight: 4 }}>
+          <span style={{ color: T.textMuted, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace", marginRight: 4 }}>
             Filter:
           </span>
           {filterPill(filterSeries === "all" && filterCategory === "all", "All", () => { setFilterSeries("all"); setFilterCategory("all"); })}
-          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px" }} />
+          <div style={{ width: 1, height: 20, background: T.border, margin: "0 4px" }} />
           {series.map((s) =>
             filterPill(
               filterSeries === s.id,
@@ -1297,7 +1315,7 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
               () => setFilterSeries(filterSeries === s.id ? "all" : s.id)
             )
           )}
-          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px" }} />
+          <div style={{ width: 1, height: 20, background: T.border, margin: "0 4px" }} />
           {CATEGORIES.map((c) =>
             filterPill(
               filterCategory === c.id,
@@ -1395,10 +1413,10 @@ function EventFormModal({ initial, series, onSave, onClose }) {
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.12)",
+    background: T.bgAlt,
+    border: `1px solid ${T.border}`,
     borderRadius: 8,
-    color: "#fff",
+    color: T.text,
     padding: "9px 12px",
     fontSize: 13,
     width: "100%",
@@ -1406,7 +1424,7 @@ function EventFormModal({ initial, series, onSave, onClose }) {
   };
 
   const labelStyle = {
-    color: "rgba(255,255,255,0.5)",
+    color: T.textSecondary,
     fontSize: 11,
     fontWeight: 600,
     letterSpacing: "0.08em",
@@ -1428,7 +1446,7 @@ function EventFormModal({ initial, series, onSave, onClose }) {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.75)",
+        background: "rgba(0,0,0,0.4)",
         zIndex: 200,
         display: "flex",
         alignItems: "center",
@@ -1439,35 +1457,36 @@ function EventFormModal({ initial, series, onSave, onClose }) {
     >
       <div
         style={{
-          background: "#141414",
-          border: "1px solid rgba(255,255,255,0.1)",
+          background: T.bg,
+          border: `1px solid ${T.border}`,
           borderRadius: 16,
           width: "100%",
           maxWidth: 600,
           maxHeight: "90vh",
           overflowY: "auto",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
         }}
       >
         {/* Modal header */}
         <div
           style={{
             padding: "20px 24px",
-            borderBottom: "1px solid rgba(255,255,255,0.07)",
+            borderBottom: `1px solid ${T.border}`,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             position: "sticky",
             top: 0,
-            background: "#141414",
+            background: T.bg,
             zIndex: 10,
           }}
         >
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: T.text }}>
             {form.id ? "Edit Event" : "New Event"}
           </h3>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}
+            style={{ background: "none", border: "none", color: T.textMuted, cursor: "pointer", fontSize: 20, lineHeight: 1 }}
           >
             ×
           </button>
@@ -1541,7 +1560,7 @@ function EventFormModal({ initial, series, onSave, onClose }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <label style={labelStyle}>Event Image</label>
             {form.imageUrl ? (
-              <div style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <div style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: `1px solid ${T.border}` }}>
                 <img
                   src={form.imageUrl}
                   alt="Event preview"
@@ -1577,18 +1596,18 @@ function EventFormModal({ initial, series, onSave, onClose }) {
                   justifyContent: "center",
                   gap: 8,
                   height: 100,
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px dashed rgba(255,255,255,0.15)",
+                  background: T.bgAlt,
+                  border: `1px dashed ${T.border}`,
                   borderRadius: 10,
                   cursor: "pointer",
                   transition: "background 0.15s",
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}
-                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                onMouseEnter={(e) => e.currentTarget.style.background = T.borderLight}
+                onMouseLeave={(e) => e.currentTarget.style.background = T.bgAlt}
               >
                 <span style={{ fontSize: 22 }}>🖼</span>
-                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, fontWeight: 600 }}>Click to upload image</span>
-                <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 11 }}>JPG, PNG, WebP — stored as preview</span>
+                <span style={{ color: T.textSecondary, fontSize: 12, fontWeight: 600 }}>Click to upload image</span>
+                <span style={{ color: T.textMuted, fontSize: 11 }}>JPG, PNG, WebP — stored as preview</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -1607,14 +1626,14 @@ function EventFormModal({ initial, series, onSave, onClose }) {
 
           <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
             <input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} style={{ width: 16, height: 16 }} />
-            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 13 }}>Show in hero carousel</span>
+            <span style={{ color: T.textSecondary, fontSize: 13 }}>Show in hero carousel</span>
           </label>
 
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-            <button type="button" onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", padding: "9px 20px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8, borderTop: `1px solid ${T.border}` }}>
+            <button type="button" onClick={onClose} style={{ background: T.bgAlt, border: `1px solid ${T.border}`, color: T.textSecondary, padding: "9px 20px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>
               Cancel
             </button>
-            <button type="submit" style={{ background: "#f97316", border: "none", color: "#fff", padding: "9px 24px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 700, letterSpacing: "0.03em" }}>
+            <button type="submit" style={{ background: T.bgDark, border: "none", color: "#fff", padding: "9px 24px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 700, letterSpacing: "0.03em" }}>
               {form.id ? "Save Changes" : "Create Event"}
             </button>
           </div>
@@ -1629,21 +1648,21 @@ function EventFormModal({ initial, series, onSave, onClose }) {
 ═══════════════════════════════════════════════════════════ */
 
 const SERIES_COLORS = [
-  { label: "Orange / Red", value: "#f97316", gradient: "linear-gradient(135deg,#f97316,#dc2626)" },
-  { label: "Purple / Blue", value: "#8b5cf6", gradient: "linear-gradient(135deg,#8b5cf6,#2563eb)" },
+  { label: "Teal / Green", value: "#0c3d3d", gradient: "linear-gradient(135deg,#0c3d3d,#1a5c4a)" },
+  { label: "Purple / Blue", value: "#7c3aed", gradient: "linear-gradient(135deg,#7c3aed,#5b21b6)" },
   { label: "Pink / Rose", value: "#ec4899", gradient: "linear-gradient(135deg,#ec4899,#be185d)" },
-  { label: "Green / Teal", value: "#10b981", gradient: "linear-gradient(135deg,#10b981,#0891b2)" },
-  { label: "Blue / Cyan", value: "#3b82f6", gradient: "linear-gradient(135deg,#3b82f6,#06b6d4)" },
+  { label: "Green / Teal", value: "#059669", gradient: "linear-gradient(135deg,#059669,#0891b2)" },
+  { label: "Blue / Cyan", value: "#2563eb", gradient: "linear-gradient(135deg,#2563eb,#06b6d4)" },
 ];
 
 function SeriesFormModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(
-    initial || { id: null, name: "", subtitle: "", description: "", startDate: "", endDate: "", color: "#f97316", gradient: SERIES_COLORS[0].gradient }
+    initial || { id: null, name: "", subtitle: "", description: "", startDate: "", endDate: "", color: "#0c3d3d", gradient: SERIES_COLORS[0].gradient }
   );
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
-  const inputStyle = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, color: "#fff", padding: "9px 12px", fontSize: 13, width: "100%", outline: "none" };
-  const labelStyle = { color: "rgba(255,255,255,0.5)", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace", marginBottom: 5, display: "block" };
+  const inputStyle = { background: T.bgAlt, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, padding: "9px 12px", fontSize: 13, width: "100%", outline: "none" };
+  const labelStyle = { color: T.textSecondary, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace", marginBottom: 5, display: "block" };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1652,11 +1671,11 @@ function SeriesFormModal({ initial, onSave, onClose }) {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, width: "100%", maxWidth: 480 }}>
-        <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>{form.id ? "Edit Series" : "New Series"}</h3>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 16, width: "100%", maxWidth: 480, boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: T.text }}>{form.id ? "Edit Series" : "New Series"}</h3>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: T.textMuted, cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
         </div>
         <form onSubmit={handleSubmit} style={{ padding: 24, display: "flex", flexDirection: "column", gap: 14 }}>
           <div><label style={labelStyle}>Series Name *</label><input style={inputStyle} value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Road Trip '26" required /></div>
@@ -1674,15 +1693,15 @@ function SeriesFormModal({ initial, onSave, onClose }) {
                   key={c.value}
                   type="button"
                   onClick={() => { set("color", c.value); set("gradient", c.gradient); }}
-                  style={{ width: 32, height: 32, borderRadius: 8, background: c.gradient, border: form.color === c.value ? "3px solid #fff" : "3px solid transparent", cursor: "pointer" }}
+                  style={{ width: 32, height: 32, borderRadius: 8, background: c.gradient, border: form.color === c.value ? `3px solid ${T.text}` : "3px solid transparent", cursor: "pointer" }}
                   title={c.label}
                 />
               ))}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-            <button type="button" onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", padding: "9px 20px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>Cancel</button>
-            <button type="submit" style={{ background: "#f97316", border: "none", color: "#fff", padding: "9px 24px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 700 }}>{form.id ? "Save Changes" : "Create Series"}</button>
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8, borderTop: `1px solid ${T.border}` }}>
+            <button type="button" onClick={onClose} style={{ background: T.bgAlt, border: `1px solid ${T.border}`, color: T.textSecondary, padding: "9px 20px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>Cancel</button>
+            <button type="submit" style={{ background: T.bgDark, border: "none", color: "#fff", padding: "9px 24px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 700 }}>{form.id ? "Save Changes" : "Create Series"}</button>
           </div>
         </form>
       </div>
@@ -1749,9 +1768,9 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
   }, [events]);
 
   const tabStyle = (active) => ({
-    background: active ? "rgba(255,255,255,0.1)" : "none",
+    background: active ? T.bgDark : "none",
     border: "none",
-    color: active ? "#fff" : "rgba(255,255,255,0.4)",
+    color: active ? "#fff" : T.textMuted,
     padding: "8px 18px",
     borderRadius: 8,
     fontSize: 13,
@@ -1761,21 +1780,21 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <style>{`* { box-sizing: border-box; } ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0a0a0a; } ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }`}</style>
+    <div style={{ minHeight: "100vh", background: T.adminBg, color: T.text, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <style>{`* { box-sizing: border-box; } ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: ${T.adminBg}; } ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }`}</style>
 
       {/* CMS Nav */}
-      <nav style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, background: "#0f0f0f" }}>
+      <nav style={{ borderBottom: `1px solid ${T.border}`, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, background: T.bg }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em" }}>BRAND<span style={{ color: "#f97316" }}>•</span>CO</span>
-          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
-          <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "monospace" }}>Events CMS</span>
+          <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em", color: T.text }}>BRAND<span style={{ color: T.bgDark }}>•</span>CO</span>
+          <div style={{ width: 1, height: 20, background: T.border }} />
+          <span style={{ color: T.textMuted, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "monospace" }}>Events CMS</span>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={onReset} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)", padding: "7px 14px", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer", letterSpacing: "0.04em" }}>
+          <button onClick={onReset} style={{ background: T.bgAlt, border: `1px solid ${T.border}`, color: T.textMuted, padding: "7px 14px", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer", letterSpacing: "0.04em" }}>
             ↺ Reset
           </button>
-          <button onClick={onSwitchToPage} style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)", color: "#fb923c", padding: "7px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}>
+          <button onClick={onSwitchToPage} style={{ background: T.bgDark, border: "none", color: "#fff", padding: "7px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}>
             ↗ View Events Page
           </button>
         </div>
@@ -1786,13 +1805,13 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 36 }}>
           {[
             { label: "Live Now", count: statCounts.live, color: "#dc2626" },
-            { label: "Upcoming", count: statCounts.upcoming + statCounts.today, color: "#3b82f6" },
-            { label: "Past", count: statCounts.past, color: "rgba(255,255,255,0.3)" },
-            { label: "Series", count: series.length, color: "#f97316" },
+            { label: "Upcoming", count: statCounts.upcoming + statCounts.today, color: "#2563eb" },
+            { label: "Past", count: statCounts.past, color: T.textMuted },
+            { label: "Series", count: series.length, color: T.bgDark },
           ].map((stat) => (
-            <div key={stat.label} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "16px 20px" }}>
+            <div key={stat.label} style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 12, padding: "16px 20px", boxShadow: T.cardShadow }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: stat.color, lineHeight: 1 }}>{stat.count}</div>
-              <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 4 }}>{stat.label}</div>
+              <div style={{ color: T.textMuted, fontSize: 12, marginTop: 4 }}>{stat.label}</div>
             </div>
           ))}
         </div>
@@ -1808,10 +1827,10 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
         {tab === "events" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>All Events</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: T.text }}>All Events</h2>
               <button
                 onClick={() => { setEditingEvent(null); setShowEventForm(true); }}
-                style={{ background: "#f97316", border: "none", color: "#fff", padding: "9px 20px", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em" }}
+                style={{ background: T.bgDark, border: "none", color: "#fff", padding: "9px 20px", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em" }}
               >
                 + Add Event
               </button>
@@ -1823,23 +1842,23 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
                 const cat = getCat(evt.categoryId);
                 const ser = series.find((s) => s.id === evt.seriesId);
                 return (
-                  <div key={evt.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: status === "live" ? "#dc2626" : status === "today" ? "#d97706" : status === "upcoming" ? "#3b82f6" : "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+                  <div key={evt.id} style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 14, boxShadow: T.cardShadow }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: status === "live" ? "#dc2626" : status === "today" ? "#d97706" : status === "upcoming" ? "#2563eb" : T.textMuted, flexShrink: 0 }} />
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{cat.emoji}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span style={{ fontWeight: 600, fontSize: 14 }}>{evt.title}</span>
-                        {evt.featured && <span style={{ background: "rgba(249,115,22,0.15)", color: "#fb923c", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 99, letterSpacing: "0.08em", textTransform: "uppercase" }}>★ Hero</span>}
+                        <span style={{ fontWeight: 600, fontSize: 14, color: T.text }}>{evt.title}</span>
+                        {evt.featured && <span style={{ background: "rgba(12,61,61,0.08)", color: T.bgDark, fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 99, letterSpacing: "0.08em", textTransform: "uppercase" }}>★ Hero</span>}
                         {ser && <span style={{ color: ser.color, fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>↗ {ser.name}</span>}
                       </div>
-                      <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginTop: 2 }}>
+                      <div style={{ color: T.textMuted, fontSize: 11, marginTop: 2 }}>
                         {evt.city}, {evt.state} · {formatDateRange(evt.startDate, evt.endDate)}
                       </div>
                     </div>
                     <StatusBadge status={status} />
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <button onClick={() => { setEditingEvent(evt); setShowEventForm(true); }} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit</button>
-                      <button onClick={() => setDeleteConfirm({ type: "event", id: evt.id, name: evt.title })} style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.2)", color: "#f87171", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Delete</button>
+                      <button onClick={() => { setEditingEvent(evt); setShowEventForm(true); }} style={{ background: T.bgAlt, border: `1px solid ${T.border}`, color: T.textSecondary, padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit</button>
+                      <button onClick={() => setDeleteConfirm({ type: "event", id: evt.id, name: evt.title })} style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", color: "#dc2626", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Delete</button>
                     </div>
                   </div>
                 );
@@ -1852,8 +1871,8 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
         {tab === "series" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Event Series</h2>
-              <button onClick={() => { setEditingSeries(null); setShowSeriesForm(true); }} style={{ background: "#f97316", border: "none", color: "#fff", padding: "9px 20px", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em" }}>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: T.text }}>Event Series</h2>
+              <button onClick={() => { setEditingSeries(null); setShowSeriesForm(true); }} style={{ background: T.bgDark, border: "none", color: "#fff", padding: "9px 20px", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em" }}>
                 + Add Series
               </button>
             </div>
@@ -1861,21 +1880,21 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
               {series.map((ser) => {
                 const eventsInSeries = events.filter((e) => e.seriesId === ser.id);
                 return (
-                  <div key={ser.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderLeft: `3px solid ${ser.color}`, borderRadius: 12, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16 }}>
+                  <div key={ser.id} style={{ background: T.bg, border: `1px solid ${T.border}`, borderLeft: `3px solid ${ser.color}`, borderRadius: 12, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16, boxShadow: T.cardShadow }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontWeight: 700, fontSize: 15 }}>{ser.name}</span>
-                        <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>·</span>
-                        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{eventsInSeries.length} event{eventsInSeries.length !== 1 ? "s" : ""}</span>
+                        <span style={{ fontWeight: 700, fontSize: 15, color: T.text }}>{ser.name}</span>
+                        <span style={{ color: T.textMuted, fontSize: 12 }}>·</span>
+                        <span style={{ color: T.textMuted, fontSize: 12 }}>{eventsInSeries.length} event{eventsInSeries.length !== 1 ? "s" : ""}</span>
                       </div>
-                      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 3 }}>
+                      <div style={{ color: T.textSecondary, fontSize: 12, marginTop: 3 }}>
                         {ser.subtitle} · {formatDate(ser.startDate)} – {formatDate(ser.endDate)}
                       </div>
-                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, marginTop: 4 }}>{ser.description}</div>
+                      <div style={{ color: T.textMuted, fontSize: 11, marginTop: 4 }}>{ser.description}</div>
                     </div>
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <button onClick={() => { setEditingSeries(ser); setShowSeriesForm(true); }} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit</button>
-                      <button onClick={() => setDeleteConfirm({ type: "series", id: ser.id, name: ser.name })} style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.2)", color: "#f87171", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Delete</button>
+                      <button onClick={() => { setEditingSeries(ser); setShowSeriesForm(true); }} style={{ background: T.bgAlt, border: `1px solid ${T.border}`, color: T.textSecondary, padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit</button>
+                      <button onClick={() => setDeleteConfirm({ type: "series", id: ser.id, name: ser.name })} style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", color: "#dc2626", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Delete</button>
                     </div>
                   </div>
                 );
@@ -1888,19 +1907,19 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
         {tab === "categories" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Categories</h2>
-              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Pre-defined · contact dev to modify</span>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: T.text }}>Categories</h2>
+              <span style={{ color: T.textMuted, fontSize: 12 }}>Pre-defined · contact dev to modify</span>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
               {CATEGORIES.map((cat) => {
                 const count = events.filter((e) => e.categoryId === cat.id).length;
                 return (
-                  <div key={cat.id} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${cat.badgeBorder}`, borderRadius: 12, padding: "18px 20px" }}>
+                  <div key={cat.id} style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 12, padding: "18px 20px", boxShadow: T.cardShadow }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{cat.emoji}</div>
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: 13 }}>{cat.name}</div>
-                        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{count} event{count !== 1 ? "s" : ""}</div>
+                        <div style={{ fontWeight: 600, fontSize: 13, color: T.text }}>{cat.name}</div>
+                        <div style={{ color: T.textMuted, fontSize: 11 }}>{count} event{count !== 1 ? "s" : ""}</div>
                       </div>
                     </div>
                     <div style={{ background: cat.badgeBg, borderRadius: 6, padding: "6px 10px" }}>
@@ -1933,17 +1952,17 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
 
       {/* Delete confirm */}
       {deleteConfirm && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, padding: 28, maxWidth: 380, width: "100%", margin: "0 20px" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 14, padding: 28, maxWidth: 380, width: "100%", margin: "0 20px", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
             <div style={{ fontSize: 28, marginBottom: 12 }}>🗑</div>
-            <h3 style={{ margin: "0 0 8px", fontSize: 16 }}>Delete "{deleteConfirm.name}"?</h3>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, margin: "0 0 20px", lineHeight: 1.5 }}>
+            <h3 style={{ margin: "0 0 8px", fontSize: 16, color: T.text }}>Delete "{deleteConfirm.name}"?</h3>
+            <p style={{ color: T.textSecondary, fontSize: 13, margin: "0 0 20px", lineHeight: 1.5 }}>
               {deleteConfirm.type === "series"
                 ? "This will remove the series and unlink all events from it. Events will not be deleted."
                 : "This event will be permanently removed from the page."}
             </p>
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button onClick={() => setDeleteConfirm(null)} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", padding: "9px 20px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>Cancel</button>
+              <button onClick={() => setDeleteConfirm(null)} style={{ background: T.bgAlt, border: `1px solid ${T.border}`, color: T.textSecondary, padding: "9px 20px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>Cancel</button>
               <button
                 onClick={() => deleteConfirm.type === "event" ? handleDeleteEvent(deleteConfirm.id) : handleDeleteSeries(deleteConfirm.id)}
                 style={{ background: "#dc2626", border: "none", color: "#fff", padding: "9px 20px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 700 }}
