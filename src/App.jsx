@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 /* ═══════════════════════════════════════════════════════════
    CONFIG & SEED DATA
@@ -145,7 +145,7 @@ const INITIAL_EVENTS = [
     rsvpUrl: "#",
     rsvpLabel: "RSVP",
     products: ["Drop 002 Jacket", "Tour Tee"],
-    featured: false,
+    featured: true,
   },
   {
     id: "e5",
@@ -375,14 +375,13 @@ function EventCard({ event, series }) {
         display: "flex",
         flexDirection: "column",
         opacity: isPast ? 0.65 : 1,
-        transition: "transform 0.2s, box-shadow 0.2s",
-        cursor: "default",
+        height: "100%",
       }}
     >
       {/* Image / gradient area */}
       <div
         style={{
-          height: 160,
+          height: 140,
           background: isPast
             ? "linear-gradient(135deg,#1f1f1f 0%,#111 100%)"
             : cat.gradient,
@@ -390,16 +389,16 @@ function EventCard({ event, series }) {
           display: "flex",
           alignItems: "flex-end",
           padding: 14,
+          flexShrink: 0,
         }}
       >
-        {/* Large emoji watermark */}
         <div
           style={{
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%,-60%)",
-            fontSize: 56,
+            fontSize: 48,
             opacity: 0.25,
             userSelect: "none",
             pointerEvents: "none",
@@ -414,14 +413,14 @@ function EventCard({ event, series }) {
       </div>
 
       {/* Content */}
-      <div style={{ padding: 18, flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
         <CategoryChip categoryId={event.categoryId} />
 
         <div>
           <h3
             style={{
               color: isPast ? "rgba(255,255,255,0.55)" : "#fff",
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: 700,
               lineHeight: 1.25,
               margin: 0,
@@ -431,22 +430,26 @@ function EventCard({ event, series }) {
           </h3>
           <p
             style={{
-              color: "rgba(255,255,255,0.45)",
-              fontSize: 12,
+              color: "rgba(255,255,255,0.4)",
+              fontSize: 11,
               lineHeight: 1.5,
-              margin: "6px 0 0",
+              margin: "5px 0 0",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
             }}
           >
             {event.description}
           </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
             <span>🗓</span>
             <span>{formatDateRange(event.startDate, event.endDate)}</span>
           </div>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, display: "flex", alignItems: "center", gap: 5 }}>
             <span>📍</span>
             <span>
               {event.venue} · {event.city}, {event.state}
@@ -461,9 +464,9 @@ function EventCard({ event, series }) {
                 key={p}
                 style={{
                   background: "rgba(255,255,255,0.07)",
-                  color: "rgba(255,255,255,0.5)",
-                  padding: "2px 8px",
-                  borderRadius: 6,
+                  color: "rgba(255,255,255,0.45)",
+                  padding: "2px 7px",
+                  borderRadius: 5,
                   fontSize: 10,
                   fontWeight: 500,
                 }}
@@ -481,9 +484,9 @@ function EventCard({ event, series }) {
               display: "inline-block",
               background: isPast ? "rgba(255,255,255,0.07)" : cat.color,
               color: "#fff",
-              padding: "9px 18px",
+              padding: "8px 16px",
               borderRadius: 8,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 700,
               textDecoration: "none",
               letterSpacing: "0.04em",
@@ -493,102 +496,6 @@ function EventCard({ event, series }) {
             {event.rsvpLabel || "Learn More"}
           </a>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════
-   HERO — LIVE / FEATURED EVENT
-═══════════════════════════════════════════════════════════ */
-
-function HeroSection({ events, series }) {
-  const liveEvent = events.find((e) => getStatus(e) === "live" && e.featured);
-  const featured = liveEvent || events.find((e) => e.featured) || events.find((e) => getStatus(e) === "live") || null;
-  if (!featured) return null;
-
-  const status = getStatus(featured);
-  const cat = getCat(featured.categoryId);
-  const ser = series.find((s) => s.id === featured.seriesId);
-
-  return (
-    <div
-      style={{
-        background: cat.gradient,
-        borderRadius: 20,
-        padding: "48px 40px",
-        position: "relative",
-        overflow: "hidden",
-        marginBottom: 48,
-      }}
-    >
-      {/* Background emoji */}
-      <div
-        style={{
-          position: "absolute",
-          right: 40,
-          top: "50%",
-          transform: "translateY(-50%)",
-          fontSize: 160,
-          opacity: 0.12,
-          userSelect: "none",
-          pointerEvents: "none",
-        }}
-      >
-        {cat.emoji}
-      </div>
-
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 600 }}>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
-          <StatusBadge status={status} large />
-          {ser && (
-            <span
-              style={{
-                background: "rgba(0,0,0,0.25)",
-                color: "#fff",
-                padding: "4px 12px",
-                borderRadius: 99,
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-              }}
-            >
-              ↗ {ser.name}
-            </span>
-          )}
-        </div>
-
-        <h2 style={{ color: "#fff", fontSize: 40, fontWeight: 800, margin: "0 0 10px", lineHeight: 1.1 }}>
-          {featured.title}
-        </h2>
-        <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 15, lineHeight: 1.6, margin: "0 0 20px" }}>
-          {featured.description}
-        </p>
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
-          <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, display: "flex", gap: 6 }}>
-            🗓 {formatDateRange(featured.startDate, featured.endDate)}
-          </span>
-          <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, display: "flex", gap: 6 }}>
-            📍 {featured.venue} · {featured.city}, {featured.state}
-          </span>
-        </div>
-        <a
-          href={featured.rsvpUrl}
-          style={{
-            display: "inline-block",
-            background: "#fff",
-            color: cat.color,
-            padding: "12px 28px",
-            borderRadius: 10,
-            fontSize: 13,
-            fontWeight: 800,
-            textDecoration: "none",
-            letterSpacing: "0.04em",
-            textTransform: "uppercase",
-          }}
-        >
-          {featured.rsvpLabel || "Learn More"}
-        </a>
       </div>
     </div>
   );
@@ -662,36 +569,580 @@ function SeriesBanner({ ser, eventCount }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   EVENTS PAGE (CONSUMER)
+   HERO CAROUSEL
 ═══════════════════════════════════════════════════════════ */
 
-const FILTER_STATUS = ["all", "live", "upcoming", "past"];
+function HeroCarousel({ events, series }) {
+  const featured = events.filter((e) => e.featured);
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const safeIdx = featured.length > 0 ? idx % featured.length : 0;
+
+  useEffect(() => {
+    if (featured.length <= 1 || paused) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % featured.length), 6000);
+    return () => clearInterval(t);
+  }, [featured.length, paused]);
+
+  if (featured.length === 0) {
+    return (
+      <div
+        style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px dashed rgba(255,255,255,0.1)",
+          borderRadius: 20,
+          height: 220,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 48,
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        <div style={{ fontSize: 36 }}>🎯</div>
+        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, fontWeight: 600 }}>
+          No featured events — mark events as "Show in hero carousel" in the CMS
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{ position: "relative", borderRadius: 20, overflow: "hidden", marginBottom: 48, height: 500 }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {featured.map((evt, i) => {
+        const eCat = getCat(evt.categoryId);
+        const eSer = series.find((s) => s.id === evt.seriesId);
+        const eStatus = getStatus(evt);
+        return (
+          <div
+            key={evt.id}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: eCat.gradient,
+              opacity: i === safeIdx ? 1 : 0,
+              transition: "opacity 0.8s ease",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-end",
+              padding: "48px 56px",
+            }}
+          >
+            {/* Large emoji watermark */}
+            <div
+              style={{
+                position: "absolute",
+                right: 60,
+                top: "50%",
+                transform: "translateY(-60%)",
+                fontSize: 220,
+                opacity: 0.1,
+                userSelect: "none",
+                pointerEvents: "none",
+              }}
+            >
+              {eCat.emoji}
+            </div>
+
+            <div style={{ position: "relative", zIndex: 1, maxWidth: 640 }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 18, flexWrap: "wrap" }}>
+                <StatusBadge status={eStatus} large />
+                {eSer && (
+                  <span
+                    style={{
+                      background: "rgba(0,0,0,0.25)",
+                      color: "#fff",
+                      padding: "4px 12px",
+                      borderRadius: 99,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    ↗ {eSer.name}
+                  </span>
+                )}
+              </div>
+
+              <h2
+                style={{
+                  color: "#fff",
+                  fontSize: 50,
+                  fontWeight: 900,
+                  margin: "0 0 12px",
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {evt.title}
+              </h2>
+              <p
+                style={{
+                  color: "rgba(255,255,255,0.82)",
+                  fontSize: 15,
+                  lineHeight: 1.65,
+                  margin: "0 0 22px",
+                  maxWidth: 520,
+                }}
+              >
+                {evt.description}
+              </p>
+
+              <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 28 }}>
+                <span style={{ color: "rgba(255,255,255,0.92)", fontSize: 13, display: "flex", gap: 6, alignItems: "center" }}>
+                  🗓 {formatDateRange(evt.startDate, evt.endDate)}
+                </span>
+                <span style={{ color: "rgba(255,255,255,0.92)", fontSize: 13, display: "flex", gap: 6, alignItems: "center" }}>
+                  📍 {evt.venue} · {evt.city}, {evt.state}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                <a
+                  href={evt.rsvpUrl}
+                  style={{
+                    display: "inline-block",
+                    background: "#fff",
+                    color: eCat.color,
+                    padding: "13px 30px",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 800,
+                    textDecoration: "none",
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {evt.rsvpLabel || "Learn More"}
+                </a>
+
+                {/* Dot indicators */}
+                {featured.length > 1 && (
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    {featured.map((_, di) => (
+                      <button
+                        key={di}
+                        onClick={() => setIdx(di)}
+                        style={{
+                          width: di === safeIdx ? 24 : 8,
+                          height: 8,
+                          borderRadius: 4,
+                          background: di === safeIdx ? "#fff" : "rgba(255,255,255,0.35)",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: 0,
+                          transition: "width 0.35s ease, background 0.35s ease",
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Prev / Next arrows */}
+      {featured.length > 1 && (
+        <>
+          <button
+            onClick={() => setIdx((i) => (i - 1 + featured.length) % featured.length)}
+            style={{
+              position: "absolute",
+              left: 16,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "rgba(0,0,0,0.35)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "#fff",
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              cursor: "pointer",
+              fontSize: 22,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10,
+              lineHeight: 1,
+            }}
+          >
+            ‹
+          </button>
+          <button
+            onClick={() => setIdx((i) => (i + 1) % featured.length)}
+            style={{
+              position: "absolute",
+              right: 16,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "rgba(0,0,0,0.35)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "#fff",
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              cursor: "pointer",
+              fontSize: 22,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10,
+              lineHeight: 1,
+            }}
+          >
+            ›
+          </button>
+
+          {/* Slide counter */}
+          <div
+            style={{
+              position: "absolute",
+              top: 18,
+              right: 18,
+              background: "rgba(0,0,0,0.35)",
+              color: "rgba(255,255,255,0.75)",
+              padding: "4px 10px",
+              borderRadius: 99,
+              fontSize: 11,
+              fontFamily: "monospace",
+              fontWeight: 700,
+              zIndex: 10,
+            }}
+          >
+            {safeIdx + 1} / {featured.length}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EVENT CAROUSEL ROW  (Upcoming / Past)
+═══════════════════════════════════════════════════════════ */
+
+function EventCarouselRow({ events, series, title, onViewAll, totalCount }) {
+  const scrollRef = useRef(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+  const displayed = events.slice(0, 6);
+
+  const checkScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanLeft(el.scrollLeft > 4);
+    setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const t = setTimeout(checkScroll, 60);
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    return () => {
+      clearTimeout(t);
+      el.removeEventListener("scroll", checkScroll);
+    };
+  }, [displayed.length]);
+
+  const scroll = (dir) => {
+    scrollRef.current?.scrollBy({ left: dir * 316, behavior: "smooth" });
+  };
+
+  const arrowBtn = (disabled) => ({
+    background: disabled ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.09)",
+    border: `1px solid ${disabled ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.14)"}`,
+    color: disabled ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.85)",
+    width: 34,
+    height: 34,
+    borderRadius: "50%",
+    cursor: disabled ? "default" : "pointer",
+    fontSize: 18,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    lineHeight: 1,
+    padding: 0,
+    fontWeight: 700,
+    flexShrink: 0,
+  });
+
+  const SectionHeader = () => (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, letterSpacing: "-0.01em" }}>{title}</h2>
+        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, fontFamily: "monospace" }}>
+          {totalCount} event{totalCount !== 1 ? "s" : ""}
+        </span>
+      </div>
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <button onClick={() => scroll(-1)} disabled={!canLeft} style={arrowBtn(!canLeft)}>‹</button>
+        <button onClick={() => scroll(1)} disabled={!canRight} style={arrowBtn(!canRight)}>›</button>
+        <button
+          onClick={onViewAll}
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            color: "rgba(255,255,255,0.8)",
+            padding: "7px 16px",
+            borderRadius: 8,
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: "pointer",
+            letterSpacing: "0.04em",
+            marginLeft: 4,
+          }}
+        >
+          View All →
+        </button>
+      </div>
+    </div>
+  );
+
+  if (displayed.length === 0) {
+    return (
+      <div style={{ marginBottom: 52 }}>
+        <SectionHeader />
+        <div
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            border: "1px dashed rgba(255,255,255,0.07)",
+            borderRadius: 12,
+            padding: "32px 24px",
+            color: "rgba(255,255,255,0.22)",
+            fontSize: 13,
+            textAlign: "center",
+          }}
+        >
+          No events match the current filters
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: 56 }}>
+      <SectionHeader />
+      <div
+        ref={scrollRef}
+        className="hide-scroll"
+        style={{
+          display: "flex",
+          gap: 16,
+          overflowX: "auto",
+          scrollSnapType: "x mandatory",
+          paddingBottom: 4,
+        }}
+      >
+        {displayed.map((e) => (
+          <div
+            key={e.id}
+            style={{ minWidth: 300, maxWidth: 300, scrollSnapAlign: "start", flexShrink: 0 }}
+          >
+            <EventCard event={e} series={series} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW ALL MODAL
+═══════════════════════════════════════════════════════════ */
+
+function ViewAllModal({ events, series, title, onClose }) {
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterSeries, setFilterSeries] = useState("all");
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  const filtered = useMemo(() => {
+    return events.filter((e) => {
+      if (filterCategory !== "all" && e.categoryId !== filterCategory) return false;
+      if (filterSeries !== "all" && e.seriesId !== filterSeries) return false;
+      return true;
+    });
+  }, [events, filterCategory, filterSeries]);
+
+  const pill = (active, label, onClick) => (
+    <button
+      onClick={onClick}
+      style={{
+        background: active ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
+        border: `1px solid ${active ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.08)"}`,
+        color: active ? "#fff" : "rgba(255,255,255,0.5)",
+        padding: "6px 14px",
+        borderRadius: 99,
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: "pointer",
+        letterSpacing: "0.03em",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.92)",
+        backdropFilter: "blur(10px)",
+        zIndex: 200,
+        overflowY: "auto",
+      }}
+    >
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px 80px" }}>
+        {/* Sticky header */}
+        <div
+          style={{
+            position: "sticky",
+            top: 0,
+            background: "rgba(8,8,8,0.96)",
+            backdropFilter: "blur(14px)",
+            padding: "24px 0 18px",
+            zIndex: 10,
+            borderBottom: "1px solid rgba(255,255,255,0.07)",
+            marginBottom: 32,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+            <div>
+              <h2 style={{ color: "#fff", margin: 0, fontSize: 30, fontWeight: 900, letterSpacing: "-0.02em" }}>
+                {title}
+              </h2>
+              <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginTop: 4, fontFamily: "monospace" }}>
+                {filtered.length} of {events.length} event{events.length !== 1 ? "s" : ""}
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "rgba(255,255,255,0.8)",
+                padding: "9px 18px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: "0.03em",
+                flexShrink: 0,
+              }}
+            >
+              ✕ Close
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            {pill(filterCategory === "all" && filterSeries === "all", "All", () => { setFilterCategory("all"); setFilterSeries("all"); })}
+            <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px", alignSelf: "center" }} />
+            {CATEGORIES.map((c) =>
+              pill(filterCategory === c.id, `${c.emoji} ${c.name}`, () =>
+                setFilterCategory(filterCategory === c.id ? "all" : c.id)
+              )
+            )}
+            {series.length > 0 && (
+              <>
+                <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px", alignSelf: "center" }} />
+                {series.map((s) =>
+                  pill(filterSeries === s.id, s.name, () =>
+                    setFilterSeries(filterSeries === s.id ? "all" : s.id)
+                  )
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Grid */}
+        {filtered.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "80px 0", color: "rgba(255,255,255,0.25)" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
+            <div style={{ fontSize: 14 }}>No events match these filters</div>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: 20,
+            }}
+          >
+            {filtered.map((e) => (
+              <EventCard key={e.id} event={e} series={series} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EVENTS PAGE (CONSUMER)
+═══════════════════════════════════════════════════════════ */
 
 function EventsPage({ events, series, onSwitchToAdmin }) {
   const [filterSeries, setFilterSeries] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [view, setView] = useState("grid"); // grid | series
+  const [viewAll, setViewAll] = useState(null); // null | "upcoming" | "past"
 
-  const filtered = useMemo(() => {
-    return events.filter((e) => {
+  // Base lists split by status (unfiltered, used for View All modal)
+  const upcomingAll = useMemo(
+    () =>
+      events
+        .filter((e) => ["live", "today", "upcoming"].includes(getStatus(e)))
+        .sort((a, b) => new Date(a.startDate) - new Date(b.startDate)),
+    [events]
+  );
+
+  const pastAll = useMemo(
+    () =>
+      events
+        .filter((e) => getStatus(e) === "past")
+        .sort((a, b) => new Date(b.startDate) - new Date(a.startDate)),
+    [events]
+  );
+
+  // Apply main-page filters for the carousel preview rows
+  const filteredUpcoming = useMemo(() => {
+    if (filterStatus === "past") return [];
+    return upcomingAll.filter((e) => {
+      if (filterStatus === "live" && getStatus(e) !== "live") return false;
       if (filterSeries !== "all" && e.seriesId !== filterSeries) return false;
       if (filterCategory !== "all" && e.categoryId !== filterCategory) return false;
-      if (filterStatus !== "all" && getStatus(e) !== filterStatus) return false;
       return true;
     });
-  }, [events, filterSeries, filterCategory, filterStatus]);
+  }, [upcomingAll, filterStatus, filterSeries, filterCategory]);
 
-  // Sort: live first, then upcoming by date, then past by date desc
-  const sorted = useMemo(() => {
-    const order = { live: 0, today: 1, upcoming: 2, past: 3 };
-    return [...filtered].sort((a, b) => {
-      const sa = order[getStatus(a)], sb = order[getStatus(b)];
-      if (sa !== sb) return sa - sb;
-      if (sa <= 2) return new Date(a.startDate) - new Date(b.startDate);
-      return new Date(b.startDate) - new Date(a.startDate);
+  const filteredPast = useMemo(() => {
+    if (filterStatus === "live" || filterStatus === "upcoming") return [];
+    return pastAll.filter((e) => {
+      if (filterSeries !== "all" && e.seriesId !== filterSeries) return false;
+      if (filterCategory !== "all" && e.categoryId !== filterCategory) return false;
+      return true;
     });
-  }, [filtered]);
+  }, [pastAll, filterStatus, filterSeries, filterCategory]);
+
+  const showUpcoming = filterStatus !== "past";
+  const showPast = filterStatus !== "live" && filterStatus !== "upcoming";
 
   const filterPill = (active, label, onClick) => (
     <button
@@ -721,6 +1172,8 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       {/* Nav */}
@@ -740,7 +1193,9 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em" }}>BRAND<span style={{ color: "#f97316" }}>•</span>CO</span>
+          <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em" }}>
+            BRAND<span style={{ color: "#f97316" }}>•</span>CO
+          </span>
           <div style={{ display: "flex", gap: 20 }}>
             {["Products", "Collections", "Events", "About"].map((item) => (
               <a
@@ -792,8 +1247,8 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
           </p>
         </div>
 
-        {/* Hero */}
-        <HeroSection events={events} series={series} />
+        {/* Hero Carousel */}
+        <HeroCarousel events={events} series={series} />
 
         {/* Series overview */}
         <div style={{ marginBottom: 40 }}>
@@ -812,7 +1267,7 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
         </div>
 
         {/* Filters */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 40, alignItems: "center" }}>
           <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace", marginRight: 4 }}>
             Filter:
           </span>
@@ -838,31 +1293,38 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
           )}
         </div>
 
-        {/* Count */}
-        <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, marginBottom: 20, fontFamily: "monospace" }}>
-          {sorted.length} event{sorted.length !== 1 ? "s" : ""}
-        </div>
+        {/* Upcoming Events carousel row */}
+        {showUpcoming && (
+          <EventCarouselRow
+            events={filteredUpcoming}
+            series={series}
+            title="Upcoming Events"
+            totalCount={filteredUpcoming.length}
+            onViewAll={() => setViewAll("upcoming")}
+          />
+        )}
 
-        {/* Grid */}
-        {sorted.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "rgba(255,255,255,0.25)" }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
-            <div style={{ fontSize: 14 }}>No events match these filters</div>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              gap: 20,
-            }}
-          >
-            {sorted.map((e) => (
-              <EventCard key={e.id} event={e} series={series} />
-            ))}
-          </div>
+        {/* Past Events carousel row */}
+        {showPast && (
+          <EventCarouselRow
+            events={filteredPast}
+            series={series}
+            title="Past Events"
+            totalCount={filteredPast.length}
+            onViewAll={() => setViewAll("past")}
+          />
         )}
       </div>
+
+      {/* View All Modal */}
+      {viewAll && (
+        <ViewAllModal
+          events={viewAll === "upcoming" ? upcomingAll : pastAll}
+          series={series}
+          title={viewAll === "upcoming" ? "All Upcoming Events" : "All Past Events"}
+          onClose={() => setViewAll(null)}
+        />
+      )}
     </div>
   );
 }
@@ -1065,7 +1527,7 @@ function EventFormModal({ initial, series, onSave, onClose }) {
 
           <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
             <input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} style={{ width: 16, height: 16 }} />
-            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 13 }}>Feature this event as the hero on the events page</span>
+            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 13 }}>Show in hero carousel</span>
           </label>
 
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
@@ -1131,7 +1593,7 @@ function SeriesFormModal({ initial, onSave, onClose }) {
                 <button
                   key={c.value}
                   type="button"
-                  onClick={() => set("color", c.value) || set("gradient", c.gradient)}
+                  onClick={() => { set("color", c.value); set("gradient", c.gradient); }}
                   style={{ width: 32, height: 32, borderRadius: 8, background: c.gradient, border: form.color === c.value ? "3px solid #fff" : "3px solid transparent", cursor: "pointer" }}
                   title={c.label}
                 />
@@ -1187,7 +1649,6 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
 
   const handleDeleteSeries = (id) => {
     onUpdateSeries(series.filter((s) => s.id !== id));
-    // Unlink events from deleted series
     onUpdateEvents(events.map((e) => (e.seriesId === id ? { ...e, seriesId: null } : e)));
     setDeleteConfirm(null);
   };
@@ -1218,8 +1679,6 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
     cursor: "pointer",
     letterSpacing: "0.03em",
   });
-
-  const inputStyle = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, color: "#fff", padding: "9px 12px", fontSize: 13, width: "100%", outline: "none" };
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -1280,28 +1739,19 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
                 const ser = series.find((s) => s.id === evt.seriesId);
                 return (
                   <div key={evt.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                    {/* Status dot */}
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: status === "live" ? "#dc2626" : status === "today" ? "#d97706" : status === "upcoming" ? "#3b82f6" : "rgba(255,255,255,0.2)", flexShrink: 0 }} />
-
-                    {/* Cat emoji */}
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{cat.emoji}</div>
-
-                    {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                         <span style={{ fontWeight: 600, fontSize: 14 }}>{evt.title}</span>
-                        {evt.featured && <span style={{ background: "rgba(249,115,22,0.15)", color: "#fb923c", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 99, letterSpacing: "0.08em", textTransform: "uppercase" }}>★ Featured</span>}
+                        {evt.featured && <span style={{ background: "rgba(249,115,22,0.15)", color: "#fb923c", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 99, letterSpacing: "0.08em", textTransform: "uppercase" }}>★ Hero</span>}
                         {ser && <span style={{ color: ser.color, fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>↗ {ser.name}</span>}
                       </div>
                       <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginTop: 2 }}>
                         {evt.city}, {evt.state} · {formatDateRange(evt.startDate, evt.endDate)}
                       </div>
                     </div>
-
-                    {/* Status badge */}
                     <StatusBadge status={status} />
-
-                    {/* Actions */}
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                       <button onClick={() => { setEditingEvent(evt); setShowEventForm(true); }} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit</button>
                       <button onClick={() => setDeleteConfirm({ type: "event", id: evt.id, name: evt.title })} style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.2)", color: "#f87171", padding: "6px 12px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Delete</button>
