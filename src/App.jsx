@@ -95,6 +95,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "View Recap",
     products: ["Drop 001 Hoodie", "Logo Cap", "OG Crewneck"],
     featured: false,
+    imageUrl: null,
   },
   {
     id: "e2",
@@ -112,6 +113,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "View Recap",
     products: ["Tour Exclusive Tee", "Road Trip Pack"],
     featured: false,
+    imageUrl: null,
   },
   {
     id: "e3",
@@ -129,6 +131,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "Get Directions",
     products: ["LA Collab Hoodie", "Tour Exclusive"],
     featured: true,
+    imageUrl: null,
   },
   {
     id: "e4",
@@ -146,6 +149,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "RSVP",
     products: ["Drop 002 Jacket", "Tour Tee"],
     featured: true,
+    imageUrl: null,
   },
   {
     id: "e5",
@@ -163,6 +167,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "RSVP",
     products: ["Miami Drop", "Collab Tee", "Limited Print"],
     featured: false,
+    imageUrl: null,
   },
   {
     id: "e6",
@@ -180,6 +185,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "Apply",
     products: [],
     featured: false,
+    imageUrl: null,
   },
   {
     id: "e7",
@@ -197,6 +203,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "RSVP",
     products: ["Denver Exclusive", "Road Trip Tee"],
     featured: false,
+    imageUrl: null,
   },
   {
     id: "e8",
@@ -214,6 +221,7 @@ const INITIAL_EVENTS = [
     rsvpLabel: "RSVP",
     products: ["Final Drop Collection"],
     featured: false,
+    imageUrl: null,
   },
 ];
 
@@ -382,7 +390,9 @@ function EventCard({ event, series }) {
       <div
         style={{
           height: 140,
-          background: isPast
+          background: event.imageUrl
+            ? `url(${event.imageUrl}) center/cover no-repeat`
+            : isPast
             ? "linear-gradient(135deg,#1f1f1f 0%,#111 100%)"
             : cat.gradient,
           position: "relative",
@@ -392,20 +402,26 @@ function EventCard({ event, series }) {
           flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-60%)",
-            fontSize: 48,
-            opacity: 0.25,
-            userSelect: "none",
-            pointerEvents: "none",
-          }}
-        >
-          {cat.emoji}
-        </div>
+        {/* Subtle dark scrim over photos so badges stay readable */}
+        {event.imageUrl && (
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%)" }} />
+        )}
+        {!event.imageUrl && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%,-60%)",
+              fontSize: 48,
+              opacity: 0.25,
+              userSelect: "none",
+              pointerEvents: "none",
+            }}
+          >
+            {cat.emoji}
+          </div>
+        )}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", position: "relative", zIndex: 1 }}>
           <StatusBadge status={status} />
           {event.seriesId && <SeriesTag seriesId={event.seriesId} series={series} />}
@@ -624,7 +640,9 @@ function HeroCarousel({ events, series }) {
             style={{
               position: "absolute",
               inset: 0,
-              background: eCat.gradient,
+              background: evt.imageUrl
+                ? `url(${evt.imageUrl}) center/cover no-repeat`
+                : eCat.gradient,
               opacity: i === safeIdx ? 1 : 0,
               transition: "opacity 0.8s ease",
               display: "flex",
@@ -633,21 +651,27 @@ function HeroCarousel({ events, series }) {
               padding: "48px 56px",
             }}
           >
-            {/* Large emoji watermark */}
-            <div
-              style={{
-                position: "absolute",
-                right: 60,
-                top: "50%",
-                transform: "translateY(-60%)",
-                fontSize: 220,
-                opacity: 0.1,
-                userSelect: "none",
-                pointerEvents: "none",
-              }}
-            >
-              {eCat.emoji}
-            </div>
+            {/* Dark gradient scrim over photos */}
+            {evt.imageUrl && (
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.1) 100%)" }} />
+            )}
+            {/* Large emoji watermark (only when no image) */}
+            {!evt.imageUrl && (
+              <div
+                style={{
+                  position: "absolute",
+                  right: 60,
+                  top: "50%",
+                  transform: "translateY(-60%)",
+                  fontSize: 220,
+                  opacity: 0.1,
+                  userSelect: "none",
+                  pointerEvents: "none",
+                }}
+              >
+                {eCat.emoji}
+              </div>
+            )}
 
             <div style={{ position: "relative", zIndex: 1, maxWidth: 640 }}>
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 18, flexWrap: "wrap" }}>
@@ -1101,7 +1125,6 @@ function ViewAllModal({ events, series, title, onClose }) {
 function EventsPage({ events, series, onSwitchToAdmin }) {
   const [filterSeries, setFilterSeries] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [viewAll, setViewAll] = useState(null); // null | "upcoming" | "past"
 
   // Base lists split by status (unfiltered, used for View All modal)
@@ -1121,28 +1144,22 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
     [events]
   );
 
-  // Apply main-page filters for the carousel preview rows
+  // Apply series/category filters for the carousel preview rows
   const filteredUpcoming = useMemo(() => {
-    if (filterStatus === "past") return [];
     return upcomingAll.filter((e) => {
-      if (filterStatus === "live" && getStatus(e) !== "live") return false;
       if (filterSeries !== "all" && e.seriesId !== filterSeries) return false;
       if (filterCategory !== "all" && e.categoryId !== filterCategory) return false;
       return true;
     });
-  }, [upcomingAll, filterStatus, filterSeries, filterCategory]);
+  }, [upcomingAll, filterSeries, filterCategory]);
 
   const filteredPast = useMemo(() => {
-    if (filterStatus === "live" || filterStatus === "upcoming") return [];
     return pastAll.filter((e) => {
       if (filterSeries !== "all" && e.seriesId !== filterSeries) return false;
       if (filterCategory !== "all" && e.categoryId !== filterCategory) return false;
       return true;
     });
-  }, [pastAll, filterStatus, filterSeries, filterCategory]);
-
-  const showUpcoming = filterStatus !== "past";
-  const showPast = filterStatus !== "live" && filterStatus !== "upcoming";
+  }, [pastAll, filterSeries, filterCategory]);
 
   const filterPill = (active, label, onClick) => (
     <button
@@ -1271,10 +1288,7 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
           <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace", marginRight: 4 }}>
             Filter:
           </span>
-          {filterPill(filterStatus === "all", "All Events", () => setFilterStatus("all"))}
-          {filterPill(filterStatus === "live", "🔴 Live", () => setFilterStatus("live"))}
-          {filterPill(filterStatus === "upcoming", "Upcoming", () => setFilterStatus("upcoming"))}
-          {filterPill(filterStatus === "past", "Past", () => setFilterStatus("past"))}
+          {filterPill(filterSeries === "all" && filterCategory === "all", "All", () => { setFilterSeries("all"); setFilterCategory("all"); })}
           <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px" }} />
           {series.map((s) =>
             filterPill(
@@ -1294,26 +1308,22 @@ function EventsPage({ events, series, onSwitchToAdmin }) {
         </div>
 
         {/* Upcoming Events carousel row */}
-        {showUpcoming && (
-          <EventCarouselRow
-            events={filteredUpcoming}
-            series={series}
-            title="Upcoming Events"
-            totalCount={filteredUpcoming.length}
-            onViewAll={() => setViewAll("upcoming")}
-          />
-        )}
+        <EventCarouselRow
+          events={filteredUpcoming}
+          series={series}
+          title="Upcoming Events"
+          totalCount={filteredUpcoming.length}
+          onViewAll={() => setViewAll("upcoming")}
+        />
 
         {/* Past Events carousel row */}
-        {showPast && (
-          <EventCarouselRow
-            events={filteredPast}
-            series={series}
-            title="Past Events"
-            totalCount={filteredPast.length}
-            onViewAll={() => setViewAll("past")}
-          />
-        )}
+        <EventCarouselRow
+          events={filteredPast}
+          series={series}
+          title="Past Events"
+          totalCount={filteredPast.length}
+          onViewAll={() => setViewAll("past")}
+        />
       </div>
 
       {/* View All Modal */}
@@ -1348,6 +1358,7 @@ const EMPTY_EVENT = {
   rsvpLabel: "RSVP",
   products: "",
   featured: false,
+  imageUrl: null,
 };
 
 const RSVP_LABELS = ["RSVP", "Apply", "Get Tickets", "Get Directions", "View Recap", "Learn More"];
@@ -1361,6 +1372,7 @@ function EventFormModal({ initial, series, onSave, onClose }) {
       startDate: formatDatetimeLocal(initial.startDate),
       endDate: formatDatetimeLocal(initial.endDate),
       seriesId: initial.seriesId || "",
+      imageUrl: initial.imageUrl || null,
     };
   });
 
@@ -1524,6 +1536,74 @@ function EventFormModal({ initial, series, onSave, onClose }) {
           <Field label="Featured Products (comma-separated)">
             <input style={inputStyle} value={form.products} onChange={(e) => set("products", e.target.value)} placeholder="Drop 002 Jacket, Tour Tee, Road Trip Pack" />
           </Field>
+
+          {/* Image Upload */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <label style={labelStyle}>Event Image</label>
+            {form.imageUrl ? (
+              <div style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <img
+                  src={form.imageUrl}
+                  alt="Event preview"
+                  style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => set("imageUrl", null)}
+                  style={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    background: "rgba(0,0,0,0.65)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    color: "#fff",
+                    borderRadius: 6,
+                    padding: "4px 10px",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  ✕ Remove
+                </button>
+              </div>
+            ) : (
+              <label
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  height: 100,
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px dashed rgba(255,255,255,0.15)",
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+              >
+                <span style={{ fontSize: 22 }}>🖼</span>
+                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, fontWeight: 600 }}>Click to upload image</span>
+                <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 11 }}>JPG, PNG, WebP — stored as preview</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => set("imageUrl", ev.target.result);
+                    reader.readAsDataURL(file);
+                  }}
+                />
+              </label>
+            )}
+          </div>
 
           <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
             <input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} style={{ width: 16, height: 16 }} />
