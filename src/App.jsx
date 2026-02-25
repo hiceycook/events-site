@@ -1694,7 +1694,7 @@ function SeriesFormModal({ initial, onSave, onClose }) {
    CMS — ADMIN PANEL
 ═══════════════════════════════════════════════════════════ */
 
-function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPage }) {
+function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPage, onReset }) {
   const [tab, setTab] = useState("events");
   const [editingEvent, setEditingEvent] = useState(null);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -1771,9 +1771,14 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
           <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
           <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "monospace" }}>Events CMS</span>
         </div>
-        <button onClick={onSwitchToPage} style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)", color: "#fb923c", padding: "7px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}>
-          ↗ View Events Page
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={onReset} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)", padding: "7px 14px", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer", letterSpacing: "0.04em" }}>
+            ↺ Reset
+          </button>
+          <button onClick={onSwitchToPage} style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)", color: "#fb923c", padding: "7px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}>
+            ↗ View Events Page
+          </button>
+        </div>
       </nav>
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }}>
@@ -1957,10 +1962,39 @@ function AdminCMS({ events, series, onUpdateEvents, onUpdateSeries, onSwitchToPa
    ROOT APP
 ═══════════════════════════════════════════════════════════ */
 
+const LS_EVENTS = "eventssite_events_v1";
+const LS_SERIES = "eventssite_series_v1";
+
+function loadLS(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export default function App() {
   const [view, setView] = useState("page"); // "page" | "admin"
-  const [events, setEvents] = useState(INITIAL_EVENTS);
-  const [series, setSeries] = useState(INITIAL_SERIES);
+  const [events, setEvents] = useState(() => loadLS(LS_EVENTS, INITIAL_EVENTS));
+  const [series, setSeries] = useState(() => loadLS(LS_SERIES, INITIAL_SERIES));
+
+  // Persist every change to localStorage
+  useEffect(() => {
+    try { localStorage.setItem(LS_EVENTS, JSON.stringify(events)); } catch {}
+  }, [events]);
+
+  useEffect(() => {
+    try { localStorage.setItem(LS_SERIES, JSON.stringify(series)); } catch {}
+  }, [series]);
+
+  const resetToDefaults = () => {
+    if (!window.confirm("Reset all events and series back to the default seed data? This cannot be undone.")) return;
+    localStorage.removeItem(LS_EVENTS);
+    localStorage.removeItem(LS_SERIES);
+    setEvents(INITIAL_EVENTS);
+    setSeries(INITIAL_SERIES);
+  };
 
   return view === "admin" ? (
     <AdminCMS
@@ -1969,6 +2003,7 @@ export default function App() {
       onUpdateEvents={setEvents}
       onUpdateSeries={setSeries}
       onSwitchToPage={() => setView("page")}
+      onReset={resetToDefaults}
     />
   ) : (
     <EventsPage
